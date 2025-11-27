@@ -74,7 +74,7 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 h-screen shadow-md p-2 transform transition-transform duration-300
+        className={`fixed top-0 left-0 z-50 w-64 bg-white h-screen shadow-md p-2 transform transition-transform duration-300
           ${open ? "translate-x-0" : "-translate-x-full"} 
           lg:translate-x-0 lg:static`}
       >
