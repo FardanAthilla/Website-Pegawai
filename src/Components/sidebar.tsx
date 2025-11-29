@@ -3,7 +3,8 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 const menu = [
-  { label: "Surat Masuk", path: "/", icon: "📝" },
+  { label: "Beranda", path: "/", icon: "🏠" },
+  { label: "Surat Masuk", path: "/masuk", icon: "📝" },
   { label: "Surat Keluar", path: "/keluar", icon: "✉️" },
 ];
 

@@ -7,22 +7,24 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
-import { db } from "../API/firebase";
-import Sidebar from "../Components/sidebar";
+import { db } from "../../API/firebase";
+import Sidebar from "../../Components/sidebar";
+import ModalSuratDetail from "./Component/detail";
+import ModalSuratForm from "./Component/modal";
 
-interface SuratKeluar {
+interface SuratMasuk {
   id: string;
   nomor_surat: string;
   tanggal_surat: string;
   tanggal_terima: string;
-  tujuan_surat: string;
+  asal_surat: string;
   perihal: string;
   file_url?: string;
   file_public_id?: string;
 }
 
-const SuratKeluar: React.FC = () => {
-  const [data, setData] = useState<SuratKeluar[]>([]);
+const SuratMasuk: React.FC = () => {
+  const [data, setData] = useState<SuratMasuk[]>([]);
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -31,12 +33,13 @@ const SuratKeluar: React.FC = () => {
   const [form, setForm] = useState({
     nomor_surat: "",
     tanggal_surat: "",
-    tujuan_surat: "",
+    tanggal_terima: "",
+    asal_surat: "",
     perihal: "",
   });
-  const [detailItem, setDetailItem] = useState<SuratKeluar | null>(null);
+  const [detailItem, setDetailItem] = useState<SuratMasuk | null>(null);
   // Fungsi Detail
-  const openDetailModal = (item: SuratKeluar) => {
+  const openDetailModal = (item: SuratMasuk) => {
     setDetailItem(item);
   };
 
@@ -91,14 +94,14 @@ const SuratKeluar: React.FC = () => {
   };
 
   // FETCH DATA
-  const fetchSuratKeluar = async () => {
+  const fetchSuratMasuk = async () => {
     try {
-      const ref = collection(db, "suratKeluar");
+      const ref = collection(db, "suratMasuk");
       const snapshot = await getDocs(ref);
       const list = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
-      })) as SuratKeluar[];
+      })) as SuratMasuk[];
       setData(list);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -108,7 +111,7 @@ const SuratKeluar: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchSuratKeluar();
+    fetchSuratMasuk();
   }, []);
 
   // OPEN MODAL ADD
@@ -117,7 +120,8 @@ const SuratKeluar: React.FC = () => {
     setForm({
       nomor_surat: "",
       tanggal_surat: "",
-      tujuan_surat: "",
+      tanggal_terima: "",
+      asal_surat: "",
       perihal: "",
     });
     setFile(null);
@@ -125,12 +129,13 @@ const SuratKeluar: React.FC = () => {
   };
 
   // OPEN MODAL EDIT
-  const openEditModal = (item: SuratKeluar) => {
+  const openEditModal = (item: SuratMasuk) => {
     setEditId(item.id);
     setForm({
       nomor_surat: item.nomor_surat,
       tanggal_surat: item.tanggal_surat,
-      tujuan_surat: item.tujuan_surat,
+      tanggal_terima: item.tanggal_terima,
+      asal_surat: item.asal_surat,
       perihal: item.perihal,
     });
     setFile(null);
@@ -146,8 +151,8 @@ const SuratKeluar: React.FC = () => {
         await deleteFromCloudinary(publicId);
       }
 
-      await deleteDoc(doc(db, "suratKeluar", id));
-      fetchSuratKeluar();
+      await deleteDoc(doc(db, "suratMasuk", id));
+      fetchSuratMasuk();
     } catch (err) {
       console.error("Delete error:", err);
     }
@@ -164,14 +169,15 @@ const SuratKeluar: React.FC = () => {
       if (file) uploaded = await uploadToCloudinary(file);
 
       if (editId) {
-        const ref = doc(db, "suratKeluar", editId);
+        const ref = doc(db, "suratMasuk", editId);
+
         await updateDoc(ref, {
           ...form,
           ...(uploaded && { file_url: uploaded.url }),
           ...(uploaded && { file_public_id: uploaded.publicId }),
         });
       } else {
-        await addDoc(collection(db, "suratKeluar"), {
+        await addDoc(collection(db, "suratMasuk"), {
           ...form,
           file_url: uploaded?.url || "",
           file_public_id: uploaded?.publicId || "",
@@ -179,7 +185,7 @@ const SuratKeluar: React.FC = () => {
       }
 
       setOpenModal(false);
-      fetchSuratKeluar();
+      fetchSuratMasuk();
     } catch (err) {
       console.error("Submit error:", err);
     } finally {
@@ -200,22 +206,25 @@ const SuratKeluar: React.FC = () => {
             onClick={openAddModal}
             className="bg-blue-600 text-white px-4 py-2 rounded-md"
           >
-            Buat Surat Keluar
+            Buat Surat Masuk
           </button>
         </div>
 
         {/* TABLE */}
         {loading ? (
-          <p>Loading...</p>
+          <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white dark:bg-gray-900">
+            <p>Loading</p>
+          </div>
         ) : (
           <div className="overflow-x-auto bg-white rounded-lg shadow">
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-200 text-gray-600 uppercase text-sm">
                   <th className="py-3 px-6 text-left">No</th>
-                  <th className="py-3 px-6 text-left">Tanggal Surat</th>
-                  <th className="py-3 px-6 text-left">Tujuan Surat</th>
                   <th className="py-3 px-6 text-left">Nomor Surat</th>
+                  <th className="py-3 px-6 text-left">Tanggal Surat</th>
+                  <th className="py-3 px-6 text-left">Tanggal Terima</th>
+                  <th className="py-3 px-6 text-left">Asal Surat</th>
                   <th className="py-3 px-6 text-left">Perihal</th>
                   <th className="py-3 px-6 text-left">File</th>
                   <th className="py-3 px-6 text-center">Aksi</th>
@@ -233,21 +242,24 @@ const SuratKeluar: React.FC = () => {
                   data.map((item, index) => (
                     <tr key={item.id} className="hover:bg-gray-100">
                       <td className="py-3 px-6">{index + 1}</td>
-                      <td className="py-3 px-6">
-                        {formatTanggal(item.tanggal_surat)}
-                      </td>
-                      <td
-                        className="py-3 px-6 max-w-[150px] truncate"
-                        title={item.tujuan_surat}
-                      >
-                        {item.tujuan_surat}
-                      </td>
                       <td
                         className="py-3 px-6 max-w-[150px] truncate"
                         title={item.nomor_surat}
                       >
                         {item.nomor_surat}
+                      </td>{" "}
+                      <td className="py-3 px-6">
+                        {formatTanggal(item.tanggal_surat)}
                       </td>
+                      <td className="py-3 px-6">
+                        {formatTanggal(item.tanggal_terima)}
+                      </td>
+                      <td
+                        className="py-3 px-6 max-w-[150px] truncate"
+                        title={item.asal_surat}
+                      >
+                        {item.asal_surat}
+                      </td>{" "}
                       <td
                         className="py-3 px-6 max-w-[180px] truncate"
                         title={item.perihal}
@@ -295,156 +307,28 @@ const SuratKeluar: React.FC = () => {
             </table>
           </div>
         )}
-
         {detailItem && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40">
-            <div className="bg-white p-6 rounded-xl w-full max-w-md relative">
-              <button
-                onClick={() => setDetailItem(null)}
-                className="absolute right-3 top-3"
-              >
-                ❌
-              </button>
-
-              <h2 className="text-xl font-bold mb-4 text-center">
-                Detail Surat
-              </h2>
-
-              <div className="space-y-2">
-                <p>
-                  <strong>Tanggal Surat:</strong>{" "}
-                  {formatTanggal(detailItem.tanggal_surat)}
-                </p>
-
-                <p>
-                  <strong>Tujuan Surat:</strong> {detailItem.tujuan_surat}
-                </p>
-                <p>
-                  <strong>Nomor Surat:</strong> {detailItem.nomor_surat}
-                </p>
-                <p>
-                  <strong>Perihal:</strong> {detailItem.perihal}
-                </p>
-                <p>
-                  <strong>File:</strong>
-                </p>
-                {detailItem.file_url ? (
-                  detailItem.file_url.endsWith(".pdf") ? (
-                    <iframe
-                      src={detailItem.file_url}
-                      className="w-full h-64 border rounded-md"
-                    ></iframe>
-                  ) : (
-                    <img
-                      src={detailItem.file_url}
-                      alt="File Surat"
-                      className="w-full h-auto max-h-64 object-contain rounded-md"
-                    />
-                  )
-                ) : (
-                  <p>-</p>
-                )}
-              </div>
-            </div>
-          </div>
+          <ModalSuratDetail
+            item={detailItem}
+            onClose={() => setDetailItem(null)}
+            formatTanggal={formatTanggal}
+          />
         )}
-
-        {/* MODAL */}
         {openModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40">
-            <div className="bg-white p-6 rounded-xl w-full max-w-md relative">
-              <button
-                onClick={() => setOpenModal(false)}
-                className="absolute right-3 top-3"
-              >
-                ❌
-              </button>
-
-              <h2 className="text-xl font-bold mb-4 text-center">
-                {editId ? "Edit Surat" : "Tambah Surat"}
-              </h2>
-
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <label>Tanggal Surat</label>
-                <input
-                  type="date"
-                  value={form.tanggal_surat}
-                  onChange={(e) =>
-                    setForm({ ...form, tanggal_surat: e.target.value })
-                  }
-                  className="w-full p-3 border rounded-md"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Tujuan Surat"
-                  value={form.tujuan_surat}
-                  onChange={(e) =>
-                    setForm({ ...form, tujuan_surat: e.target.value })
-                  }
-                  className="w-full p-3 border rounded-md"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Nomor Surat"
-                  value={form.nomor_surat}
-                  onChange={(e) =>
-                    setForm({ ...form, nomor_surat: e.target.value })
-                  }
-                  className="w-full p-3 border rounded-md"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Perihal"
-                  value={form.perihal}
-                  onChange={(e) =>
-                    setForm({ ...form, perihal: e.target.value })
-                  }
-                  className="w-full p-3 border rounded-md"
-                  required
-                />
-                <div>
-                  <label>Upload File (PDF/IMG)</label>
-                  <input
-                    type="file"
-                    accept="image/*,.pdf"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="w-full p-2 border rounded-md"
-                    required={!editId}
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setOpenModal(false)}
-                    className="px-4 py-2 bg-gray-300 rounded-md"
-                    disabled={submitting}
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className={`px-4 py-2 text-white rounded-md ${
-                      submitting
-                        ? "bg-blue-300 cursor-not-allowed"
-                        : "bg-blue-600"
-                    }`}
-                  >
-                    {submitting ? "Mengirim..." : editId ? "Update" : "Save"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <ModalSuratForm
+            editId={editId}
+            submitting={submitting}
+            form={form}
+            setForm={setForm}
+            file={file}
+            setFile={setFile}
+            onClose={() => setOpenModal(false)}
+            onSubmit={handleSubmit}
+          />
         )}
       </div>
     </div>
   );
 };
 
-export default SuratKeluar;
+export default SuratMasuk;
