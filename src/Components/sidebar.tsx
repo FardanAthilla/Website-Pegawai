@@ -15,57 +15,17 @@ export default function Sidebar() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full overflow-y-auto">
-      {/* Logo */}
-      <div className="flex justify-start items-center gap-2 py-4 px-4">
-        <div className="h-10 rounded-lg text-lg flex items-center justify-center text-Black font-bold">
-          Website Surat
-        </div>
-      </div>
-
-      {/* Menu Header */}
-      <div className="px-5 pt-2 hidden lg:block">
-        <div className="text-xs font-bold tracking-wide text-gray-600">
-          Menu
-        </div>
-      </div>
-
-      {/* Menu List */}
-      <div className="flex flex-col space-y-1 mx-1 mt-2 flex-grow">
-        {menu.map((item) => (
-          <button
-            key={item.label}
-            onClick={() => {
-              navigate(item.path);
-              setOpen(false);
-            }}
-            className={`flex items-center gap-3 h-12 rounded-md px-4 font-semibold cursor-pointer transition
-              ${
-                isActive(item.path)
-                  ? "bg-blue-100 text-blue-500 shadow-sm"
-                  : "text-gray-500 hover:text-blue-400"
-              }`}
-          >
-            <span className="text-lg">{item.icon}</span>
-            <span className="text-sm lg:text-base">{item.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <>
-      {/* Mobile Hamburger */}
-      <button
-        onClick={() => setOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow"
-      >
-        <Bars3Icon className="w-6 h-6" />
-      </button>
+      {/* 🔹 NAVBAR MOBILE */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white px-4 py-3 shadow flex items-center gap-3">
+        <button onClick={() => setOpen(true)}>
+          <Bars3Icon className="w-7 h-7 text-gray-700" />
+        </button>
+        <h1 className="font-semibold text-gray-700 text-lg">Website Surat</h1>
+      </div>
 
-      {/* Overlay */}
+      {/* 🔹 OVERLAY MOBILE */}
       {open && (
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden"
@@ -73,13 +33,16 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* 🔹 SIDEBAR */}
       <aside
-        className={`fixed top-0 left-0 z-50 w-64 bg-white h-screen shadow-md p-2 transform transition-transform duration-300
-          ${open ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 lg:static`}
+        className={`
+          fixed top-0 left-0 z-50 w-64 bg-white h-screen shadow-md p-3
+          transform transition-transform duration-300
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0 lg:static
+        `}
       >
-        {/* Close button mobile */}
+        {/* Close (mobile only) */}
         <button
           className="lg:hidden absolute top-4 right-4"
           onClick={() => setOpen(false)}
@@ -87,7 +50,32 @@ export default function Sidebar() {
           <XMarkIcon className="w-6 h-6" />
         </button>
 
-        <SidebarContent />
+        {/* Logo Desktop */}
+        <div className="hidden lg:flex items-center gap-2 py-4 px-2">
+          <div className="text-lg font-bold text-gray-800">Website Surat</div>
+        </div>
+
+        {/* Menu */}
+        <div className="flex flex-col space-y-1 mt-6">
+          {menu.map((item) => (
+            <button
+              key={item.label}
+              onClick={() => {
+                navigate(item.path);
+                setOpen(false);
+              }}
+              className={`flex items-center gap-3 px-4 h-12 rounded-md font-semibold transition
+                ${
+                  isActive(item.path)
+                    ? "bg-blue-100 text-blue-600"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+              <span className="text-xl">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
       </aside>
     </>
   );

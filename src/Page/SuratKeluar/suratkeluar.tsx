@@ -11,12 +11,21 @@ import { db } from "../../API/firebase";
 import Sidebar from "../../Components/sidebar";
 import ModalSuratKeluarForm from "./Component/modal";
 import ModalSuratKeluarDetail from "./Component/detail";
+import {
+  Eye,
+  Edit2,
+  Trash2,
+  FileText,
+  Calendar,
+  MapPin,
+  Hash,
+  BookOpen,
+} from "lucide-react";
 
 interface SuratKeluar {
   id: string;
   nomor_surat: string;
   tanggal_surat: string;
-  tanggal_terima: string;
   tujuan_surat: string;
   perihal: string;
   file_url?: string;
@@ -37,12 +46,13 @@ const SuratKeluar: React.FC = () => {
     perihal: "",
   });
   const [detailItem, setDetailItem] = useState<SuratKeluar | null>(null);
-  // Fungsi Detail
+
+  // DETAIL
   const openDetailModal = (item: SuratKeluar) => {
     setDetailItem(item);
   };
 
-  // UPLOAD CLOUDINARY
+  // CLOUDINARY UPLOAD
   const uploadToCloudinary = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -54,36 +64,18 @@ const SuratKeluar: React.FC = () => {
     );
 
     const data = await res.json();
-
-    return {
-      url: data.secure_url,
-      publicId: data.public_id,
-    };
+    return { url: data.secure_url, publicId: data.public_id };
   };
 
-  function formatTanggal(tanggal: string) {
-    const date = new Date(tanggal);
-    const bulan = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-    const hari = date.getDate();
-    const namaBulan = bulan[date.getMonth()];
-    const tahun = date.getFullYear();
-    return `${hari} ${namaBulan} ${tahun}`;
-  }
+  const formatTanggal = (tanggal: string) => {
+    return new Date(tanggal).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
-  // HAPUS FILE CLOUDINARY
+  // DELETE FROM CLOUDINARY
   const deleteFromCloudinary = async (publicId: string) => {
     await fetch(`https://api.cloudinary.com/v1_1/dtzkbcloy/delete_by_token`, {
       method: "POST",
@@ -92,7 +84,7 @@ const SuratKeluar: React.FC = () => {
     });
   };
 
-  // FETCH DATA
+  // FETCH
   const fetchSuratKeluar = async () => {
     try {
       const ref = collection(db, "suratKeluar");
@@ -101,6 +93,7 @@ const SuratKeluar: React.FC = () => {
         id: d.id,
         ...d.data(),
       })) as SuratKeluar[];
+
       setData(list);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -113,7 +106,7 @@ const SuratKeluar: React.FC = () => {
     fetchSuratKeluar();
   }, []);
 
-  // OPEN MODAL ADD
+  // ADD MODAL
   const openAddModal = () => {
     setEditId(null);
     setForm({
@@ -126,7 +119,7 @@ const SuratKeluar: React.FC = () => {
     setOpenModal(true);
   };
 
-  // OPEN MODAL EDIT
+  // EDIT MODAL
   const openEditModal = (item: SuratKeluar) => {
     setEditId(item.id);
     setForm({
@@ -139,15 +132,12 @@ const SuratKeluar: React.FC = () => {
     setOpenModal(true);
   };
 
-  // DELETE RECORD + CLOUDINARY
+  // DELETE
   const handleDelete = async (id: string, publicId?: string) => {
     if (!confirm("Hapus data ini?")) return;
 
     try {
-      if (publicId) {
-        await deleteFromCloudinary(publicId);
-      }
-
+      if (publicId) await deleteFromCloudinary(publicId);
       await deleteDoc(doc(db, "suratKeluar", id));
       fetchSuratKeluar();
     } catch (err) {
@@ -162,15 +152,16 @@ const SuratKeluar: React.FC = () => {
 
     try {
       let uploaded = null;
-
       if (file) uploaded = await uploadToCloudinary(file);
 
       if (editId) {
         const ref = doc(db, "suratKeluar", editId);
         await updateDoc(ref, {
           ...form,
-          ...(uploaded && { file_url: uploaded.url }),
-          ...(uploaded && { file_public_id: uploaded.publicId }),
+          ...(uploaded && {
+            file_url: uploaded.url,
+            file_public_id: uploaded.publicId,
+          }),
         });
       } else {
         await addDoc(collection(db, "suratKeluar"), {
@@ -189,116 +180,158 @@ const SuratKeluar: React.FC = () => {
     }
   };
 
-  // RENDER
+  // UI START
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* SIDEBAR FIXED / STICKY */}
-      <div className="sticky top-0 h-screen">
+      {/* SIDEBAR */}
         <Sidebar />
-      </div>
       <div className="flex flex-col flex-1 min-h-screen p-8 overflow-y-auto">
-        <div className="flex justify-end mb-6">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-8 mt-10 lg:mt-0">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-800">Surat Keluar</h1>
+          </div>
+
           <button
             onClick={openAddModal}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
           >
             Buat Surat Keluar
           </button>
         </div>
 
         {/* TABLE */}
-        {loading ? (
-          <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white dark:bg-gray-900">
-            <p>Loading</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto bg-white rounded-lg shadow">
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="bg-gray-200 text-gray-600 uppercase text-sm">
-                  <th className="py-3 px-6 text-left">No</th>
-                  <th className="py-3 px-6 text-left">Tanggal Surat</th>
-                  <th className="py-3 px-6 text-left">Tujuan Surat</th>
-                  <th className="py-3 px-6 text-left">Nomor Surat</th>
-                  <th className="py-3 px-6 text-left">Perihal</th>
-                  <th className="py-3 px-6 text-left">File</th>
-                  <th className="py-3 px-6 text-center">Aksi</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {data.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-4">
-                      Tidak ada data.
-                    </td>
+        <div className="backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl">
+          {loading ? (
+            <div className="py-20 flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+              <p className="text-slate-300">Memuat data...</p>
+            </div>
+          ) : data.length === 0 ? (
+            <div className="py-20 flex flex-col items-center gap-4">
+              <FileText className="w-14 h-14 text-slate-600" />
+              <p className="text-slate-400 text-lg">
+                Tidak ada data surat keluar
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto relative">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-gray-300">
+                    <th className="px-6 py-4 text-left text-gray-600 uppercase text-xs">
+                      No
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 uppercase text-xs">
+                      Tanggal
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 uppercase text-xs">
+                      Tujuan
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 uppercase text-xs">
+                      Nomor Surat
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 uppercase text-xs">
+                      Perihal
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 uppercase text-xs">
+                      File
+                    </th>
+                    <th className="px-6 py-4 text-center text-gray-600 uppercase text-xs">
+                      Aksi
+                    </th>
                   </tr>
-                ) : (
-                  data.map((item, index) => (
-                    <tr key={item.id} className="hover:bg-gray-100">
-                      <td className="py-3 px-6">{index + 1}</td>
-                      <td className="py-3 px-6">
-                        {formatTanggal(item.tanggal_surat)}
+                </thead>
+
+                <tbody className="divide-y divide-gray-200">
+                  {data.map((item, index) => (
+                    <tr key={item.id}>
+                      <td className="px-6 py-4 text-gray-800">{index + 1}</td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-gray-800">
+                          <Calendar className="w-4 h-4 text-blue-500" />
+                          {formatTanggal(item.tanggal_surat)}
+                        </div>
                       </td>
-                      <td
-                        className="py-3 px-6 max-w-[150px] truncate"
-                        title={item.tujuan_surat}
-                      >
-                        {item.tujuan_surat}
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-gray-800">
+                          <MapPin className="w-4 h-4 text-purple-500" />
+                          <span className="block max-w-[100px] truncate whitespace-nowrap">
+                            {item.tujuan_surat}
+                          </span>
+                        </div>
                       </td>
-                      <td
-                        className="py-3 px-6 max-w-[150px] truncate"
-                        title={item.nomor_surat}
-                      >
-                        {item.nomor_surat}
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <Hash className="w-4 h-4 text-emerald-500" />
+                          <code className="text-gray-800 bg-gray-100 px-2 py-1 rounded block max-w-[100px] truncate whitespace-nowrap">
+                            {item.nomor_surat}
+                          </code>
+                        </div>
                       </td>
-                      <td
-                        className="py-3 px-6 max-w-[180px] truncate"
-                        title={item.perihal}
-                      >
-                        {item.perihal}
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-gray-800">
+                          <BookOpen className="w-4 h-4 text-amber-500" />
+                          <span className="block max-w-[100px] truncate whitespace-nowrap">
+                            {item.perihal}
+                          </span>
+                        </div>
                       </td>
-                      <td className="py-3 px-6 text-blue-600">
+
+                      <td className="px-6 py-4">
                         {item.file_url ? (
-                          <a href={item.file_url} target="_blank">
-                            Lihat File
+                          <a
+                            href={item.file_url}
+                            target="_blank"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg border border-blue-300 hover:bg-blue-200 transition"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Lihat
                           </a>
                         ) : (
-                          "-"
+                          <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="py-3 px-6 text-center">
-                        <div className="flex gap-3 justify-center">
+
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 justify-center">
                           <button
                             onClick={() => openDetailModal(item)}
-                            className="text-blue-500 hover:scale-110"
+                            className="p-2 rounded-lg bg-gray-100 text-sky-600 hover:bg-sky-100 hover:text-sky-700"
                           >
-                            👁️
+                            <Eye className="w-4 h-4" />
                           </button>
+
                           <button
                             onClick={() => openEditModal(item)}
-                            className="text-blue-500 hover:scale-110"
+                            className="p-2 rounded-lg bg-gray-100 text-amber-600 hover:bg-amber-100 hover:text-amber-700"
                           >
-                            ✏️
+                            <Edit2 className="w-4 h-4" />
                           </button>
 
                           <button
                             onClick={() =>
                               handleDelete(item.id, item.file_public_id)
                             }
-                            className="text-red-500 hover:scale-110"
+                            className="p-2 rounded-lg bg-gray-100 text-red-600 hover:bg-red-100 hover:text-red-700"
                           >
-                            🗑️
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* MODALS */}
         {detailItem && (
           <ModalSuratKeluarDetail
             item={detailItem}
@@ -306,6 +339,7 @@ const SuratKeluar: React.FC = () => {
             formatTanggal={formatTanggal}
           />
         )}
+
         {openModal && (
           <ModalSuratKeluarForm
             editId={editId}
