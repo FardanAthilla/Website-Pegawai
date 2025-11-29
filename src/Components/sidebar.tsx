@@ -1,11 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { User, Home, Mail, FileEdit } from "lucide-react";
 import { useState } from "react";
 
 const menu = [
-  { label: "Beranda", path: "/", icon: "🏠" },
-  { label: "Surat Masuk", path: "/masuk", icon: "📝" },
-  { label: "Surat Keluar", path: "/keluar", icon: "✉️" },
+  { label: "Beranda", path: "/", icon: Home },
+  { label: "Surat Masuk", path: "/masuk", icon: Mail },
+  { label: "Surat Keluar", path: "/keluar", icon: FileEdit },
+  { label: "Akun", path: "/akun", icon: User },
 ];
 
 export default function Sidebar() {
@@ -55,8 +57,15 @@ export default function Sidebar() {
           <div className="text-lg font-bold text-gray-800">Website Surat</div>
         </div>
 
+        {/* Menu Header */}
+        <div className="px-5 pt-4 hidden lg:block">
+          <div className="text-xs font-bold tracking-wide text-gray-600">
+            Menu
+          </div>
+        </div>
+
         {/* Menu */}
-        <div className="flex flex-col space-y-1 mt-6">
+        <div className="flex flex-col space-y-1 mt-2">
           {menu.map((item) => (
             <button
               key={item.label}
@@ -71,8 +80,8 @@ export default function Sidebar() {
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
             >
-              <span className="text-xl">{item.icon}</span>
-              {item.label}
+              <item.icon className="w-5 h-5" />
+              <span>{item.label}</span>
             </button>
           ))}
         </div>
