@@ -198,13 +198,6 @@ const SuratMasuk: React.FC = () => {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-gray-800">Surat Masuk</h1>
           </div>
-
-          <button
-            onClick={openAddModal}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-          >
-            Buat Surat Masuk
-          </button>
         </div>
 
         {/* TABLE */}
@@ -354,6 +347,14 @@ const SuratMasuk: React.FC = () => {
               </table>
             </div>
           )}
+        </div>
+        <div className="flex items-center justify-between mb-8 mt-6 lg:mt-4">
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            Buat Surat Masuk
+          </button>
         </div>
 
         {/* MODALS */}

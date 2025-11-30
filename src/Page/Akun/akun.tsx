@@ -143,17 +143,11 @@ const UserManagement: React.FC = () => {
 
       <div className="flex flex-col flex-1 p-8 min-h-screen overflow-y-auto">
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-8 mt-10 lg:mt-0">
-          <h1 className="text-3xl font-bold text-gray-800">Manajemen User</h1>
-
-          <button
-            onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Tambah User
-          </button>
+        <div className="flex items-center justify-between mb-8 mt-10 lg:mt-0">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-800">Manajemen Akun</h1>
+          </div>
         </div>
-
         {/* TABLE WRAPPER */}
         <div className="backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
           {loading ? (
@@ -237,6 +231,14 @@ const UserManagement: React.FC = () => {
               </table>
             </div>
           )}
+        </div>
+
+        <div className="flex items-center justify-between mb-8 mt-6 lg:mt-4">
+          <button
+            onClick={handleOpenCreate}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+            Tambah User
+          </button>
         </div>
 
         <UserModal
