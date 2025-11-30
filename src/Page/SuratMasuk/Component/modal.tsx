@@ -35,45 +35,53 @@ const ModalSuratForm: React.FC<ModalSuratFormProps> = ({
   onSubmit,
 }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40">
-      <div className="bg-white p-6 rounded-xl w-full max-w-md relative">
-        <button onClick={onClose} className="absolute right-3 top-3">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white border border-slate-300 rounded-2xl shadow-2xl max-w-md w-full relative p-6">
+
+        {/* CLOSE BUTTON */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-slate-600 hover:text-black transition"
+        >
           ❌
         </button>
 
-        <h2 className="text-xl font-bold mb-4 text-center">
+        {/* TITLE */}
+        <h2 className="text-xl font-bold text-center mb-4 text-gray-800">
           {editId ? "Edit Surat" : "Tambah Surat"}
         </h2>
 
-        <form onSubmit={onSubmit} className="space-y-3">
+        {/* FORM */}
+        <form onSubmit={onSubmit} className="space-y-4">
+
           <input
             type="text"
             placeholder="Nomor Surat"
             value={form.nomor_surat}
             onChange={(e) => setForm({ ...form, nomor_surat: e.target.value })}
-            className="w-full p-3 border rounded-md"
+            className="w-full p-3 border border-slate-300 rounded-lg"
             required
           />
 
-          <label>Tanggal Surat</label>
+          <label className="block text-sm font-medium text-gray-700">Tanggal Surat</label>
           <input
             type="date"
             value={form.tanggal_surat}
             onChange={(e) =>
               setForm({ ...form, tanggal_surat: e.target.value })
             }
-            className="w-full p-3 border rounded-md"
+            className="w-full p-3 border border-slate-300 rounded-lg"
             required
           />
 
-          <label>Tanggal Terima</label>
+          <label className="block text-sm font-medium text-gray-700">Tanggal Terima</label>
           <input
             type="date"
             value={form.tanggal_terima}
             onChange={(e) =>
               setForm({ ...form, tanggal_terima: e.target.value })
             }
-            className="w-full p-3 border rounded-md"
+            className="w-full p-3 border border-slate-300 rounded-lg"
             required
           />
 
@@ -82,7 +90,7 @@ const ModalSuratForm: React.FC<ModalSuratFormProps> = ({
             placeholder="Asal Surat"
             value={form.asal_surat}
             onChange={(e) => setForm({ ...form, asal_surat: e.target.value })}
-            className="w-full p-3 border rounded-md"
+            className="w-full p-3 border border-slate-300 rounded-lg"
             required
           />
 
@@ -91,41 +99,50 @@ const ModalSuratForm: React.FC<ModalSuratFormProps> = ({
             placeholder="Perihal"
             value={form.perihal}
             onChange={(e) => setForm({ ...form, perihal: e.target.value })}
-            className="w-full p-3 border rounded-md"
+            className="w-full p-3 border border-slate-300 rounded-lg"
             required
           />
 
           <div>
-            <label>Upload File (PDF/IMG)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Upload File (PDF/IMG)
+            </label>
             <input
               type="file"
               accept="image/*,.pdf"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border border-slate-300 rounded-lg"
               required={!editId}
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded-md"
-              disabled={submitting}
-            >
-              Cancel
-            </button>
-
+          {/* BUTTONS — sudah sama seperti Surat Keluar */}
+          <div className="flex gap-3 pt-3">
             <button
               type="submit"
               disabled={submitting}
-              className={`px-4 py-2 text-white rounded-md ${
-                submitting ? "bg-blue-300" : "bg-blue-600"
-              }`}
+              className="
+                flex-1 bg-blue-600 text-white rounded-lg py-2 
+                hover:bg-blue-700 transition font-medium shadow-sm
+                disabled:bg-blue-300
+              "
             >
-              {submitting ? "Mengirim..." : editId ? "Update" : "Save"}
+              {submitting ? "Mengirim..." : editId ? "Update" : "Simpan"}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitting}
+              className="
+                flex-1 bg-red-600 text-white rounded-lg py-2 
+                hover:bg-red-700 transition font-medium shadow-sm
+              "
+            >
+              Batal
             </button>
           </div>
+
         </form>
       </div>
     </div>

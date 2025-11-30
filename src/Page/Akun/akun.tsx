@@ -10,7 +10,8 @@ import {
 import { db } from "../../API/firebase";
 
 import Sidebar from "../../Components/sidebar";
-import { User, Edit2, Trash2, ShieldCheck, Lock, X } from "lucide-react";
+import { User, Edit2, Trash2, ShieldCheck, Lock } from "lucide-react";
+import UserModal from "./modal";
 
 interface UserData {
   id: string;
@@ -167,10 +168,10 @@ const UserManagement: React.FC = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full table-fixed">
+              <table className="w-full table-auto">
                 <thead>
                   <tr className="bg-gray-100 border-b border-gray-300">
-                    <th className="px-4 py-3 text-left text-xs text-gray-600 w-[40px] uppercase">
+                    <th className="px-4 py-3 text-left text-xs text-gray-600 w-14 uppercase">
                       No
                     </th>
                     <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase">
@@ -179,10 +180,10 @@ const UserManagement: React.FC = () => {
                     <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase">
                       Password
                     </th>
-                    <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase w-[120px]">
+                    <th className="px-4 py-3 text-left text-xs text-gray-600 uppercase w-28">
                       Role
                     </th>
-                    <th className="px-4 py-3 text-center text-xs text-gray-600 uppercase w-[120px]">
+                    <th className="px-4 py-3 text-center text-xs text-gray-600 uppercase w-28">
                       Aksi
                     </th>
                   </tr>
@@ -192,25 +193,29 @@ const UserManagement: React.FC = () => {
                   {data.map((item, index) => (
                     <tr key={item.id}>
                       <td className="px-4 py-3">{index + 1}</td>
-
-                      <td className="px-4 py-3 flex items-center gap-2">
-                        <User className="w-4 h-4 text-blue-500" />
-                        {item.username}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-blue-500" />
+                          <span>{item.username}</span>
+                        </div>
                       </td>
 
-                      <td className="px-4 py-3 flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-purple-500" />
-                        {item.password}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-purple-500" />
+                          <span>{item.password}</span>
+                        </div>
                       </td>
 
-                      <td className="px-4 py-3 flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-green-500" />
-                        {item.role}
+                      <td className="px-4 py-3 capitalize">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-green-500" />
+                          <span>{item.role}</span>
+                        </div>
                       </td>
 
                       <td className="px-4 py-3">
                         <div className="flex justify-center gap-2">
-                          {/* EDIT */}
                           <button
                             onClick={() => handleOpenEdit(item)}
                             className="p-2 rounded-lg bg-gray-100 text-amber-600 hover:bg-amber-200"
@@ -218,7 +223,6 @@ const UserManagement: React.FC = () => {
                             <Edit2 className="w-4 h-4" />
                           </button>
 
-                          {/* DELETE */}
                           <button
                             onClick={() => handleDelete(item.id)}
                             className="p-2 rounded-lg bg-gray-100 text-red-600 hover:bg-red-200"
@@ -235,117 +239,14 @@ const UserManagement: React.FC = () => {
           )}
         </div>
 
-        {showModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white border border-slate-700 rounded-2xl shadow-2xl max-w-md w-full">
-              {/* HEADER */}
-              <div className="flex justify-between items-center p-6 border-b border-slate-700">
-                <h2 className="text-xl font-bold">
-                  {editingId ? "Edit User" : "Tambah User"}
-                </h2>
-                <button onClick={handleCloseModal} className="text-slate-900">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* FORM */}
-              <form
-                onSubmit={editingId ? handleUpdate : handleCreate}
-                className="p-6 space-y-4"
-              >
-                {/* USERNAME */}
-                <div>
-                  <label className="block text-sm mb-2">Username</label>
-                  <input
-                    type="text"
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                    minLength={4}
-                    required
-                    className={`w-full px-4 py-2 border rounded-lg focus:border-blue-500 
-      ${
-        formData.username.length > 0 && formData.username.length < 4
-          ? "border-red-500"
-          : "border-slate-600"
-      }`}
-                  />
-                  {formData.username.length > 0 &&
-                    formData.username.length < 4 && (
-                      <p className="text-red-500 text-xs mt-1">
-                        Username minimal 4 karakter
-                      </p>
-                    )}
-                </div>
-
-                {/* PASSWORD → hanya saat create */}
-                {!editingId && (
-                  <div>
-                    <label className="block text-sm mb-2">Password</label>
-                    <input
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      minLength={4}
-                      required
-                      className={`w-full px-4 py-2 border rounded-lg focus:border-blue-500 
-        ${
-          formData.password.length > 0 && formData.password.length < 4
-            ? "border-red-500"
-            : "border-slate-600"
-        }`}
-                    />
-                    {formData.password.length > 0 &&
-                      formData.password.length < 4 && (
-                        <p className="text-red-500 text-xs mt-1">
-                          Password minimal 4 karakter
-                        </p>
-                      )}
-                  </div>
-                )}
-
-                {/* ROLE */}
-                <div>
-                  <label className="block text-sm mb-2">Role</label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        role: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-slate-600 rounded-lg focus:border-blue-500"
-                  >
-                    <option value="pegawai">Pegawai</option>
-                    <option value="manajer">Manajer</option>
-                  </select>
-                </div>
-
-                {/* BUTTON */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700"
-                  >
-                    {editingId ? "Update" : "Buat User"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="flex-1 bg-red-600 text-slate-100 rounded-lg py-2 hover:bg-red-700"
-                  >
-                    Batal
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        <UserModal
+          show={showModal}
+          onClose={handleCloseModal}
+          onSubmit={editingId ? handleUpdate : handleCreate}
+          formData={formData}
+          setFormData={setFormData}
+          isEdit={!!editingId}
+        />
       </div>
     </div>
   );
