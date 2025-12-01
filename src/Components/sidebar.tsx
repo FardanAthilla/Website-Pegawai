@@ -24,8 +24,10 @@ export default function Sidebar() {
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
+    if (window.confirm("Apakah kamu yakin ingin keluar?")) {
+      localStorage.removeItem("user");
+      navigate("/login");
+    }
   };
 
   const menu = [
@@ -71,9 +73,7 @@ export default function Sidebar() {
 
         {/* Logo Desktop */}
         <div className="hidden lg:flex items-center gap-2 py-4 px-2">
-          <div className="text-lg font-bold text-gray-800">
-            Website Surat
-          </div>
+          <div className="text-lg font-bold text-gray-800">Website Surat</div>
         </div>
 
         {/* 🔹 User Info */}

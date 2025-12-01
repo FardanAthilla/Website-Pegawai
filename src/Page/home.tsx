@@ -9,16 +9,47 @@ const Home = () => {
   const [jumlahSuratKeluar, setJumlahSuratKeluar] = useState(0);
   const [jumlahUser, setJumlahUser] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [aktivitas, setAktivitas] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const sm = await getDocs(collection(db, "suratMasuk"));
-      const sk = await getDocs(collection(db, "suratKeluar"));
-      const us = await getDocs(collection(db, "users"));
+      const smSnap = await getDocs(collection(db, "suratMasuk"));
+      const skSnap = await getDocs(collection(db, "suratKeluar"));
+      const usSnap = await getDocs(collection(db, "users"));
 
-      setJumlahSuratMasuk(sm.size);
-      setJumlahSuratKeluar(sk.size);
-      setJumlahUser(us.size);
+      setJumlahSuratMasuk(smSnap.size);
+      setJumlahSuratKeluar(skSnap.size);
+      setJumlahUser(usSnap.size);
+
+      // Ambil data + beri penanda asal
+      const aktivitasList: any[] = [];
+
+      smSnap.forEach((doc) => {
+        aktivitasList.push({
+          id: doc.id,
+          ...doc.data(),
+          jenis: "surat masuk",
+        });
+      });
+
+      skSnap.forEach((doc) => {
+        aktivitasList.push({
+          id: doc.id,
+          ...doc.data(),
+          jenis: "surat keluar",
+        });
+      });
+
+      // Sort berdasarkan created_at terbaru
+      aktivitasList.sort((a, b) => {
+        const t1 = a.created_at?.toDate?.() ?? new Date(0);
+        const t2 = b.created_at?.toDate?.() ?? new Date(0);
+        return t2.getTime() - t1.getTime();
+      });
+
+      // Ambil hanya 5 aktivitas terbaru
+      setAktivitas(aktivitasList.slice(0, 5));
+
       setLoading(false);
     };
 
@@ -64,6 +95,16 @@ const Home = () => {
     </div>
   );
 
+  const timeAgo = (date: Date) => {
+    const now = new Date();
+    const diff = (now.getTime() - date.getTime()) / 1000;
+
+    if (diff < 60) return `${Math.floor(diff)} detik lalu`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
+    return `${Math.floor(diff / 86400)} hari lalu`;
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* SIDEBAR tetap dari project-mu */}
@@ -74,7 +115,7 @@ const Home = () => {
       {/* MAIN CONTENT */}
       <div className="flex flex-col flex-1 overflow-hidden p-8 mt-16 lg:mt-0">
         {/* HEADER */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         </div>
 
@@ -114,8 +155,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* 2 Card bawah */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Aktivitas Terbaru */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
@@ -123,57 +163,47 @@ const Home = () => {
             </h3>
 
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
+              {aktivitas.length === 0 && (
+                <p className="text-sm text-gray-500">Belum ada aktivitas.</p>
+              )}
+
+              {aktivitas.map((item, idx) => (
                 <div
-                  key={i}
+                  key={idx}
                   className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  <p className="text-sm text-gray-600">
-                    Surat baru ditambahkan
-                  </p>
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      item.jenis === "surat masuk"
+                        ? "bg-blue-500"
+                        : "bg-green-500"
+                    }`}
+                  />
+
+                  <div>
+                    <p className="text-sm text-gray-700 font-medium">
+                      {item.jenis === "surat masuk"
+                        ? "Surat Masuk baru ditambahkan"
+                        : "Surat Keluar baru ditambahkan"}
+                    </p>
+
+                    <p className="text-xs text-gray-500">
+                      Perihal:{" "}
+                      {item.perihal
+                        ? item.perihal.length > 30
+                          ? item.perihal.slice(0, 30) + "..."
+                          : item.perihal
+                        : "-"}
+                    </p>
+                  </div>
+
                   <span className="text-xs text-gray-400 ml-auto">
-                    2 jam lalu
+                    {item.created_at?.toDate
+                      ? timeAgo(item.created_at.toDate())
+                      : "–"}
                   </span>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Performa */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Performa</h3>
-
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Surat Diproses
-                  </span>
-                  <span className="text-sm font-bold text-gray-900">78%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full"
-                    style={{ width: "78%" }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Pengguna Aktif
-                  </span>
-                  <span className="text-sm font-bold text-gray-900">92%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-purple-600 h-2 rounded-full"
-                    style={{ width: "92%" }}
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>

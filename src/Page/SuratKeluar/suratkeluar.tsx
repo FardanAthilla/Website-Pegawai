@@ -6,6 +6,7 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../API/firebase";
 import Sidebar from "../../Components/sidebar";
@@ -168,6 +169,7 @@ const SuratKeluar: React.FC = () => {
           ...form,
           file_url: uploaded?.url || "",
           file_public_id: uploaded?.publicId || "",
+          created_at: serverTimestamp(),
         });
       }
 
