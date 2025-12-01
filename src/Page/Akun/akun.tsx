@@ -11,7 +11,7 @@ import { db } from "../../API/firebase";
 
 import Sidebar from "../../Components/sidebar";
 import { User, Edit2, Trash2, ShieldCheck, Lock } from "lucide-react";
-import UserModal from "./modal";
+import UserModal from "./Component/modal";
 
 interface UserData {
   id: string;

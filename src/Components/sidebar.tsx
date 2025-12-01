@@ -1,21 +1,38 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { User, Home, Mail, FileEdit } from "lucide-react";
-import { useState } from "react";
-
-const menu = [
-  { label: "Beranda", path: "/", icon: Home },
-  { label: "Surat Masuk", path: "/masuk", icon: Mail },
-  { label: "Surat Keluar", path: "/keluar", icon: FileEdit },
-  { label: "Akun", path: "/akun", icon: User },
-];
+import { User, Home, Mail, FileEdit, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
+  const [userData, setUserData] = useState<{
+    username: string;
+    role: string;
+  } | null>(null);
+
+  // Ambil user login data dari localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      setUserData(JSON.parse(stored));
+    }
+  }, []);
+
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  const menu = [
+    { label: "Beranda", path: "/", icon: Home },
+    { label: "Surat Masuk", path: "/masuk", icon: Mail },
+    { label: "Surat Keluar", path: "/keluar", icon: FileEdit },
+  ];
 
   return (
     <>
@@ -54,17 +71,36 @@ export default function Sidebar() {
 
         {/* Logo Desktop */}
         <div className="hidden lg:flex items-center gap-2 py-4 px-2">
-          <div className="text-lg font-bold text-gray-800">Website Surat</div>
+          <div className="text-lg font-bold text-gray-800">
+            Website Surat
+          </div>
         </div>
 
+        {/* 🔹 User Info */}
+        {userData && (
+          <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-3 mb-3">
+            <div className="bg-blue-100 p-2 rounded-full">
+              <User className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-800">
+                {userData.username}
+              </div>
+              <div className="text-xs text-gray-500 capitalize">
+                {userData.role}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Menu Header */}
-        <div className="px-5 pt-4 hidden lg:block">
+        <div className="px-5 pt-1 hidden lg:block">
           <div className="text-xs font-bold tracking-wide text-gray-600">
             Menu
           </div>
         </div>
 
-        {/* Menu */}
+        {/* Menu List */}
         <div className="flex flex-col space-y-1 mt-2">
           {menu.map((item) => (
             <button
@@ -84,6 +120,35 @@ export default function Sidebar() {
               <span>{item.label}</span>
             </button>
           ))}
+
+          {userData?.role === "manajer" && (
+            <button
+              onClick={() => {
+                navigate("/akun");
+                setOpen(false);
+              }}
+              className={`flex items-center gap-3 px-4 h-12 rounded-md font-semibold transition
+                ${
+                  isActive("/akun")
+                    ? "bg-blue-100 text-blue-600"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+              <User className="w-5 h-5" />
+              <span>Akun</span>
+            </button>
+          )}
+        </div>
+
+        {/* 🔥 LOGOUT BUTTON */}
+        <div className="absolute bottom-6 left-4 right-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md shadow"
+          >
+            <LogOut className="w-5 h-5" />
+            Keluar
+          </button>
         </div>
       </aside>
     </>
