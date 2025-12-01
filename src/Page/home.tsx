@@ -47,8 +47,8 @@ const Home = () => {
         return t2.getTime() - t1.getTime();
       });
 
-      // Ambil hanya 5 aktivitas terbaru
-      setAktivitas(aktivitasList.slice(0, 5));
+      // Ambil hanya 3 aktivitas terbaru
+      setAktivitas(aktivitasList.slice(0, 3));
 
       setLoading(false);
     };
@@ -107,8 +107,11 @@ const Home = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* SIDEBAR tetap dari project-mu */}
-      <div className="sticky top-0 h-screen">
+      {/* SIDEBAR */}
+      <div className="hidden md:block sticky top-0 h-screen">
+        <Sidebar />
+      </div>
+      <div className="md:hidden fixed top-0 left-0 w-full z-50 bg-white shadow">
         <Sidebar />
       </div>
 

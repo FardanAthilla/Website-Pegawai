@@ -189,10 +189,15 @@ const SuratKeluar: React.FC = () => {
       <Sidebar />
       <div className="flex flex-col flex-1 min-h-screen p-8 overflow-y-auto">
         {/* HEADER */}
-        <div className="flex items-center justify-between mb-8 mt-10 lg:mt-0">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-800">Surat Keluar</h1>
-          </div>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 mt-10 lg:mt-0 gap-4">
+          <h1 className="text-3xl font-bold text-gray-800">Surat Keluar</h1>
+
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition w-full lg:w-auto"
+          >
+            Buat Surat Keluar
+          </button>
         </div>
 
         {/* TABLE */}
@@ -324,14 +329,6 @@ const SuratKeluar: React.FC = () => {
               </table>
             </div>
           )}
-        </div>
-        <div className="flex items-center justify-between mb-8 mt-6 lg:mt-4">
-          <button
-            onClick={openAddModal}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-          >
-            Buat Surat Keluar
-          </button>
         </div>
 
         {/* MODALS */}
